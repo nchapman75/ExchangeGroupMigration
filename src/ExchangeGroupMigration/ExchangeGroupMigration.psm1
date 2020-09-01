@@ -1,4 +1,4 @@
-﻿#########################################################################################################################################################################
+#########################################################################################################################################################################
 #	This script is a part of the library of scripts to help migrate onprem Exchange DLs to cloud-only Exchange Online DLs.
 #	The latest version of the script can be downloaded from https://github.com/Microsoft/ExchangeGroupMigration.
 #
@@ -12,41 +12,40 @@
 #region Global Variables. Must be edited appropriately
 
 $Global:TestTenant = $false
-$Global:GroupForest = "CONTOSO" # "TH-CONTOSO" # "CONTOSOMY" # "CONTOSO-EU"
-$Global:SmtpDomains =  "@*" #@("@uk.contosolab.com", "@in.contosolab.com")
-
-$Global:__UPN__ =  if ($Global:TestTenant -eq $true) { "nileshg@contosolab.onmicrosoft.com" } else { "a-th30@global.contoso.org" }
+$Global:GroupForest = "NEWMARKRE"
+$Global:SmtpDomains =   @("@NEWMARKKF.COM", "@GFPRE.COM" ,"@NGKF.COM")
+$Global:__UPN__ =  if ($Global:TestTenant -eq $true) { "ser-questondemand@ngkfcs.onmicrosoft.com" } else { "ser-questondemand@ngkfcs.onmicrosoft.com" }
 $Global:NewGroupNameSuffix = "#NEW#"
-$Global:NewSmtpDomain = if ($Global:TestTenant -eq $true) { "@contosolab.com" } else { "@contoso.com" }
-$Global:HybridEmailRoutingDomain = if ($Global:TestTenant -eq $true) { "@contosolab.mail.onmicrosoft.com" } else { "@contoso.mail.onmicrosoft.com" }
-$Global:DefaultGroupOwner = "DL_Admin" + $Global:NewSmtpDomain # must be an cloud MESG
+$Global:NewSmtpDomain = if ($Global:TestTenant -eq $true) { "@NGKF.COM" }
+$Global:HybridEmailRoutingDomain = if ($Global:TestTenant -eq $true) { "@ngkfcs.mail.onmicrosoft.com" } else { "@ngkfcs.onmicrosoft.com" }
+$Global:DefaultGroupOwner = "ser-questondemand" + $Global:NewSmtpDomain # must be an cloud MESG
 $Global:OnpremExchangeUri = switch ($Global:GroupForest) {
-		"CONTOSO" { if ($Global:TestTenant -eq $true) { "http://OC-EXCH-01.ukroi.contosolab.net/PowerShell" } else { "http://OC-EXCH-01.ukroi.contoso.org/PowerShell" } }
-		"TH-CONTOSO" { if ($Global:TestTenant -eq $true) { "http://TH-EXCH-01.th.contosolab.net/PowerShell" } else { "http://TH-EXCH-01.TH-CONTOSO.ORG/PowerShell" } }
-		"CONTOSOMY" { if ($Global:TestTenant -eq $true) { "http://MY-EXCH-01.my.contosolab.net/PowerShell" } else { "http://MY-EXCH-01.my.contoso.com/PowerShell" } }
-		"CONTOSO-EU" { if ($Global:TestTenant -eq $true) { "http://CE-EXCH-01.ce.contosolab.net/PowerShell" } else { "http://CE-EXCH-01.contoso-europe.com/Powershell" } }
+		"NEWMARKRE" { if ($Global:TestTenant -eq $true) { "https://tbpnmkn0202.ngad.local" } else { "https://tbpnmkn0202.ngad.local" } }
+#		"TH-CONTOSO" { if ($Global:TestTenant -eq $true) { "http://TH-EXCH-01.th.contosolab.net/PowerShell" } else { "http://TH-EXCH-01.TH-CONTOSO.ORG/PowerShell" } }
+#		"CONTOSOMY" { if ($Global:TestTenant -eq $true) { "http://MY-EXCH-01.my.contosolab.net/PowerShell" } else { "http://MY-EXCH-01.my.contoso.com/PowerShell" } }
+#		"CONTOSO-EU" { if ($Global:TestTenant -eq $true) { "http://CE-EXCH-01.ce.contosolab.net/PowerShell" } else { "http://CE-EXCH-01.contoso-europe.com/Powershell" } }
 	}
 
 # The OU which is excluded from syncing to AAD. This is because we don't have "DoNotSync" filter on contacts
 $Global:ContactSyncExclusionOU = switch ($Global:GroupForest) {
-		"CONTOSO" { if ($Global:TestTenant -eq $true) { "OU=GALSyncContacts,OU=XX,DC=ukroi,DC=contosolab,DC=net" } else { "OU=GALSyncContacts,OU=XX,DC=ukroi,DC=contoso,DC=org" } }
-		"TH-CONTOSO" { if ($Global:TestTenant -eq $true) { "OU=GALSyncContacts,OU=XX,DC=th,DC=contosolab,DC=net" } else { "OU=GALSyncContacts,OU=XX,DC=TH-CONTOSO,DC=ORG" } }
-		"CONTOSOMY" { if ($Global:TestTenant -eq $true) { "OU=GALSyncContacts,OU=XX,DC=my,DC=contosolab,DC=ne" } else { "OU=GALSyncContacts,OU=XX,DC=my,DC=contoso,DC=com" } }
-		"CONTOSO-EU" { if ($Global:TestTenant -eq $true) { "OU=GALSyncContacts,DC=ce,DC=contosolab,DC=net" } else { "OU=GALSyncContacts,DC=contoso-europe,DC=com" } }
+		"NEWMARKRE" { if ($Global:TestTenant -eq $true) { "OU=ExcludeFromADConnect,DC=ngad,DC=local" } else { "OU=ExcludeFromADConnect,DC=ngad,DC=local" } }
+		"NGAD" { if ($Global:TestTenant -eq $true) { "OU=ExcludeFromADConnect,DC=ngad,DC=local" } else { "OU=ExcludeFromADConnect,DC=ngad,DC=local" } }
+#		"CONTOSOMY" { if ($Global:TestTenant -eq $true) { "OU=GALSyncContacts,OU=XX,DC=my,DC=contosolab,DC=ne" } else { "OU=GALSyncContacts,OU=XX,DC=my,DC=contoso,DC=com" } }
+#		"CONTOSO-EU" { if ($Global:TestTenant -eq $true) { "OU=GALSyncContacts,DC=ce,DC=contosolab,DC=net" } else { "OU=GALSyncContacts,DC=contoso-europe,DC=com" } }
 	}
 
 # Domain Controllers used by AADC to avoid any replication delays
 $Global:DomainControllerLookup = @{
-		"DC=UKROI,DC=*" = if ($Global:TestTenant -eq $true) { "OC-ADDS-03.ukroi.contosolab.net" } else {  "OC-ADDS-03.ukroi.contoso.org" };
-		"DC=IN,DC=*" =  if ($Global:TestTenant -eq $true) { "OC-ADDS-05.in.contosolab.net" } else { "OC-ADDS-05.in.contoso.org" };
-		"DC=TSL,DC=*" =  if ($Global:TestTenant -eq $true) { "OC-ADDS-07.tsl.contosolab.net" } else { "OC-ADDS-07.tsl.contoso.org" };
-		"DC=TH-CONTOSO,DC=*" =  if ($Global:TestTenant -eq $true) { "TH-ADDS-01.th.contosolab.net" } else { "TH-ADDS-01.th-contoso.org" };
-		"DC=MY,DC=*" =  if ($Global:TestTenant -eq $true) { "MY-ADDS-01.my.contosolab.net" } else { "MY-ADDS-01.my.contoso.com" };
-		"DC=CZ,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-03.cz.ce.contosolab.net" } else { "CE-ADDS-03.cz.contoso-europe.com" };
-		"DC=HU,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-05.hu.ce.contosolab.net" } else { "CE-ADDS-05.hu.contoso-europe.com" };
-		"DC=PL,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-07.pl.ce.contosolab.net" } else { "CE-ADDS-07.pl.contoso-europe.com" };
-		"DC=SK,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-09.sk.ce.contosolab.net" } else { "CE-ADDS-09.sk.contoso-europe.com" };
-		"DC=CONTOSO-EUROPE,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-01.ce.contosolab.net" } else { "CE-ADDS-01.contoso-europe.com" };
+		"DC=TBPNMKG0015,DC=*" = if ($Global:TestTenant -eq $true) { "TBPNMKG0015.ngad.local" } else {  "TBPNMKG0015.ngad.local" };
+#		"DC=IN,DC=*" =  if ($Global:TestTenant -eq $true) { "OC-ADDS-05.in.contosolab.net" } else { "OC-ADDS-05.in.contoso.org" };
+#		"DC=TSL,DC=*" =  if ($Global:TestTenant -eq $true) { "OC-ADDS-07.tsl.contosolab.net" } else { "OC-ADDS-07.tsl.contoso.org" };
+#		"DC=TH-CONTOSO,DC=*" =  if ($Global:TestTenant -eq $true) { "TH-ADDS-01.th.contosolab.net" } else { "TH-ADDS-01.th-contoso.org" };
+#		"DC=MY,DC=*" =  if ($Global:TestTenant -eq $true) { "MY-ADDS-01.my.contosolab.net" } else { "MY-ADDS-01.my.contoso.com" };
+#		"DC=CZ,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-03.cz.ce.contosolab.net" } else { "CE-ADDS-03.cz.contoso-europe.com" };
+#		"DC=HU,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-05.hu.ce.contosolab.net" } else { "CE-ADDS-05.hu.contoso-europe.com" };
+#		"DC=PL,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-07.pl.ce.contosolab.net" } else { "CE-ADDS-07.pl.contoso-europe.com" };
+#		"DC=SK,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-09.sk.ce.contosolab.net" } else { "CE-ADDS-09.sk.contoso-europe.com" };
+#		"DC=CONTOSO-EUROPE,DC=*" =  if ($Global:TestTenant -eq $true) { "CE-ADDS-01.ce.contosolab.net" } else { "CE-ADDS-01.contoso-europe.com" };
 	}
 
 #endregion Global Variables. Must be edited appropriately
@@ -284,11 +283,11 @@ function New-OnpremExchangeSession
 
 		if ($Global:OnpremExchangeUserCredential)
 		{
-			$OnpremExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection -Credential $Global:OnpremExchangeUserCredential 
+			$OnpremExchangeSession = New-PSSession -SkipCACheck -SkipCNCheck -SkipRevocationCheck -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection -Credential $Global:OnpremExchangeUserCredential 
 		}
 		else
 		{
-			$OnpremExchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection 
+			$OnpremExchangeSession = New-PSSession -SkipCACheck -SkipCNCheck -SkipRevocationCheck -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection 
 		}
 
 		Import-Module (Import-PSSession $OnpremExchangeSession -AllowClobber -Prefix "Onprem" -DisableNameChecking) -Prefix "Onprem" -Global -DisableNameChecking
