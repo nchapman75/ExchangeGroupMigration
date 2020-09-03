@@ -283,11 +283,11 @@ function New-OnpremExchangeSession
 
 		if ($Global:OnpremExchangeUserCredential)
 		{
-			$OnpremExchangeSession = New-PSSession -SkipCACheck -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection -Credential $Global:OnpremExchangeUserCredential 
+			$OnpremExchangeSession = New-PSSession -SkipCNCheck -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection -Credential $Global:OnpremExchangeUserCredential 
 		}
 		else
 		{
-			$OnpremExchangeSession = New-PSSession -SkipCACheck -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection 
+			$OnpremExchangeSession = New-PSSession -SkipCNCheck -ConfigurationName Microsoft.Exchange -ConnectionUri $Global:OnpremExchangeUri -Authentication Kerberos -AllowRedirection 
 		}
 
 		Import-Module (Import-PSSession $OnpremExchangeSession -AllowClobber -Prefix "Onprem" -DisableNameChecking) -Prefix "Onprem" -Global -DisableNameChecking
